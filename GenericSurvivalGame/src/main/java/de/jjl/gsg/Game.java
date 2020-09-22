@@ -3,6 +3,8 @@ package de.jjl.gsg;
 import java.util.Random;
 
 import de.jjl.gsg.cursor.Cursors;
+import de.jjl.gsg.item.RockItem;
+import de.jjl.gsg.item.WoodItem;
 import de.jjl.gsg.player.Inventory;
 import de.jjl.gsg.tile.GrassTile;
 import de.jjl.gsg.tile.RockTile;
@@ -21,8 +23,11 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 public class Game extends Application
@@ -67,7 +72,7 @@ public class Game extends Application
 
 				paintScreen();
 //
-//				handleCursor();
+				handleCursor();
 			}
 		};
 
@@ -142,10 +147,6 @@ public class Game extends Application
 							t.hover();
 							hover = t;
 
-							if (t instanceof TreeTile || t instanceof WoodTile)
-							{
-								canvas.getScene().setCursor(Cursors.AXE);
-							}
 						}
 						return;
 					}
@@ -156,9 +157,55 @@ public class Game extends Application
 			{
 				hover.hoverEnd();
 				hover = null;
-				canvas.getScene().setCursor(Cursor.DEFAULT);
 			}
 		});
+
+		primaryStage.addEventFilter(MouseEvent.MOUSE_PRESSED, e ->
+		{
+			if (hover == null)
+			{
+				return;
+			}
+
+			if (hover instanceof TreeTile || hover instanceof WoodTile)
+			{
+				inventory.addItem(new WoodItem());
+				tileMap.getLevel(hover.getZ()).setTile(hover.getIndex(), null);
+			}
+			else if (hover instanceof RockTile)
+			{
+				inventory.addItem(new RockItem());
+				tileMap.getLevel(hover.getZ()).setTile(hover.getIndex(), null);
+			}
+		});
+
+		primaryStage.addEventFilter(ScrollEvent.SCROLL, e ->
+		{
+			if (e.getDeltaY() < 0)
+			{
+				inventory.incActiveStack();
+			}
+			else
+			{
+				inventory.decActiveStack();
+			}
+		});
+	}
+
+	protected void handleCursor()
+	{
+		if (hover != null && (hover instanceof TreeTile || hover instanceof WoodTile))
+		{
+			canvas.getScene().setCursor(Cursors.AXE);
+		}
+		else if (hover != null && (hover instanceof RockTile))
+		{
+			canvas.getScene().setCursor(Cursors.PICKAXE);
+		}
+		else
+		{
+			canvas.getScene().setCursor(Cursor.DEFAULT);
+		}
 	}
 
 	protected void paintScreen()
@@ -166,6 +213,41 @@ public class Game extends Application
 		GraphicsContext graphics = canvas.getGraphicsContext2D();
 
 		graphics.clearRect(0, 0, 1400, 800);
+
+		paintTiles();
+		paintGui();
+	}
+
+	private void paintGui()
+	{
+		GraphicsContext graphics = canvas.getGraphicsContext2D();
+
+		for (int i = 0; i < inventory.getItemStacks().length; i++)
+		{
+			graphics.setFill(inventory.getActiveStackIndex() == i ? Color.LIGHTGRAY : Color.GRAY);
+			graphics.setStroke(Color.BLACK);
+
+			int x = (int) (canvas.getWidth() / 2 - 50 - 100 * (4 - i));
+			int y = (int) (canvas.getHeight() - 100);
+
+			graphics.fillRect(x, y, 100, 100);
+			graphics.strokeRect(x, y, 100, 100);
+
+			if (inventory.getItemStacks()[i].getItem() != null)
+			{
+				graphics.drawImage(inventory.getItemStacks()[i].getItem().getInventoryIcon(), x, y, 100, 100);
+
+				graphics.setFill(Color.BLACK);
+				graphics.setFont(Font.font("Sans-Serif", FontWeight.BOLD, 18));
+				graphics.fillText(String.format("%2s", "" + inventory.getItemStacks()[i].getSize()), x + 75, y + 90);
+			}
+		}
+
+	}
+
+	protected void paintTiles()
+	{
+		GraphicsContext graphics = canvas.getGraphicsContext2D();
 
 		Tile playerTile = getCurrentPlayerTile();
 
@@ -222,7 +304,7 @@ public class Game extends Application
 			return;
 		}
 
-		playerOffsetY = t.getZ() * Tile.HEIGHT / 2;
+		playerOffsetY = t.getZ() * Tile.ZHEIGHT;
 
 	}
 
@@ -249,7 +331,7 @@ public class Game extends Application
 			tileX = 700 + (colNum - rowNum) * (Tile.WIDTH / 2);
 			tileY = 100 + (colNum + rowNum) * (Tile.HEIGHT / 2);
 
-			tileMap.getLevel(0).setTile(i, new GrassTile(tileX, tileY, 0));
+			tileMap.getLevel(0).setTile(i, new GrassTile(tileX, tileY, 0, i));
 		}
 
 		for (int i = 0; i < tileMap.getLevel(1).getSize(); i++)
@@ -261,11 +343,11 @@ public class Game extends Application
 
 			if (r.nextInt() % 10 == 0)
 			{
-				tileMap.getLevel(1).setTile(i, new TreeTile(tileX, tileY, 1));
+				tileMap.getLevel(1).setTile(i, new TreeTile(tileX, tileY, 1, i));
 			}
 			if (r.nextInt() % 16 == 0)
 			{
-				tileMap.getLevel(1).setTile(i, new RockTile(tileX, tileY, 1));
+				tileMap.getLevel(1).setTile(i, new RockTile(tileX, tileY, 1, i));
 			}
 		}
 	}

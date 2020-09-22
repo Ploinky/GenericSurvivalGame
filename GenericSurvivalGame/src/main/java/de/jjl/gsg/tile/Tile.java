@@ -11,6 +11,8 @@ public abstract class Tile
 
 	public static final int HEIGHT = 50;
 
+	public static final int ZHEIGHT = HEIGHT / 2;
+
 	public static final int COLUMNS = 10;
 	public static final int ROWS = 10;
 
@@ -22,12 +24,20 @@ public abstract class Tile
 
 	private int z;
 
-	protected Tile(boolean canWalkOn, int x, int y, int z)
+	private int index;
+
+	protected Tile(boolean canWalkOn, int x, int y, int z, int index)
 	{
 		this.canWalkOn = canWalkOn;
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		this.index = index;
+	}
+
+	public int getIndex()
+	{
+		return index;
 	}
 
 	public boolean canWalkOn()
