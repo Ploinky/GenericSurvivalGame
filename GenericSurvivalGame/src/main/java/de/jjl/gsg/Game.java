@@ -2,6 +2,7 @@ package de.jjl.gsg;
 
 import java.util.Random;
 
+import de.jjl.gsg.cursor.Cursors;
 import de.jjl.gsg.player.Inventory;
 import de.jjl.gsg.tile.GrassTile;
 import de.jjl.gsg.tile.RockTile;
@@ -9,9 +10,11 @@ import de.jjl.gsg.tile.Tile;
 import de.jjl.gsg.tile.TileLevel;
 import de.jjl.gsg.tile.TileMap;
 import de.jjl.gsg.tile.TreeTile;
+import de.jjl.gsg.tile.WoodTile;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.Point2D;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.canvas.Canvas;
@@ -138,6 +141,11 @@ public class Game extends Application
 						{
 							t.hover();
 							hover = t;
+
+							if (t instanceof TreeTile || t instanceof WoodTile)
+							{
+								canvas.getScene().setCursor(Cursors.AXE);
+							}
 						}
 						return;
 					}
@@ -148,6 +156,7 @@ public class Game extends Application
 			{
 				hover.hoverEnd();
 				hover = null;
+				canvas.getScene().setCursor(Cursor.DEFAULT);
 			}
 		});
 	}
@@ -240,8 +249,6 @@ public class Game extends Application
 			tileX = 700 + (colNum - rowNum) * (Tile.WIDTH / 2);
 			tileY = 100 + (colNum + rowNum) * (Tile.HEIGHT / 2);
 
-//			System.out.println("Tile# :" + i + ", tileX: " + tileX + ", tileY: " + tileY);
-
 			tileMap.getLevel(0).setTile(i, new GrassTile(tileX, tileY, 0));
 		}
 
@@ -278,7 +285,6 @@ public class Game extends Application
 	{
 		int tileIndex = x + y * Tile.COLUMNS;
 
-		System.out.println(tileIndex);
 		if (tileIndex < 0 || tileIndex > tileMap.getLevel(0).getSize())
 		{
 			return null;
