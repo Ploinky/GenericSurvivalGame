@@ -48,17 +48,20 @@ public class Game extends Application
 
 	private int playerOffsetY = 0;
 
+	private int viewX = 600;
+	private int viewY = 50;
+
 	@Override
 	public void start(Stage primaryStage) throws Exception
 	{
-		canvas = new Canvas(1400, 800);
+		canvas = new Canvas(1200, viewX);
 
 		createMap();
 
 		BorderPane root = new BorderPane();
 
 		root.setCenter(canvas);
-		Scene scene = new Scene(root, 1400, 800, true, SceneAntialiasing.BALANCED);
+		Scene scene = new Scene(root, 1200, viewX, true, SceneAntialiasing.BALANCED);
 
 		primaryStage.setScene(scene);
 
@@ -72,7 +75,7 @@ public class Game extends Application
 				handlePlayerInput();
 
 				paintScreen();
-//
+
 				handleCursor();
 			}
 		};
@@ -232,7 +235,7 @@ public class Game extends Application
 	{
 		GraphicsContext graphics = canvas.getGraphicsContext2D();
 
-		graphics.clearRect(0, 0, 1400, 800);
+		graphics.clearRect(0, 0, 1200, viewX);
 
 		paintTiles();
 		paintGui();
@@ -247,11 +250,11 @@ public class Game extends Application
 			graphics.setFill(inventory.getActiveStackIndex() == i ? Color.LIGHTGRAY : Color.GRAY);
 			graphics.setStroke(Color.BLACK);
 
-			int x = (int) (canvas.getWidth() / 2 - 50 - 100 * (4 - i));
-			int y = (int) (canvas.getHeight() - 100);
+			int x = (int) (canvas.getWidth() / 2 - 50 - viewY * (4 - i));
+			int y = (int) (canvas.getHeight() - viewY);
 
-			graphics.fillRect(x, y, 100, 100);
-			graphics.strokeRect(x, y, 100, 100);
+			graphics.fillRect(x, y, viewY, viewY);
+			graphics.strokeRect(x, y, viewY, viewY);
 
 			if (inventory.getItemStacks()[i].getItem() != null)
 			{
@@ -280,7 +283,7 @@ public class Game extends Application
 			{
 				if (t != null)
 				{
-					if (t.getZ() > playerTile.getZ() && t.contains(new Point2D(playerX + 700, playerY + 100)))
+					if (t.getZ() > playerTile.getZ() && t.contains(new Point2D(playerX + viewX, playerY + viewY)))
 					{
 						graphics.setGlobalAlpha(0.3);
 					}
@@ -294,9 +297,9 @@ public class Game extends Application
 				graphics.setFill(Color.DARKRED);
 
 				graphics.fillPolygon(
-						new double[] { playerX + 700, playerX + 700 + 10, playerX + 700, playerX + 700 - 10 },
-						new double[] { playerY + 100 - playerOffsetY - 5, playerY + 100 - playerOffsetY,
-								playerY + 100 - playerOffsetY + 5, playerY + 100 - playerOffsetY },
+						new double[] { playerX + viewX, playerX + viewX + 10, playerX + viewX, playerX + viewX - 10 },
+						new double[] { playerY + viewY - playerOffsetY - 5, playerY + viewY - playerOffsetY,
+								playerY + viewY - playerOffsetY + 5, playerY + viewY - playerOffsetY },
 						4);
 			}
 		}
@@ -363,8 +366,8 @@ public class Game extends Application
 			int rowNum = i / Tile.COLUMNS;
 			int colNum = i % Tile.COLUMNS;
 
-			tileX = 700 + (colNum - rowNum) * (Tile.WIDTH / 2);
-			tileY = 100 + (colNum + rowNum) * (Tile.HEIGHT / 2);
+			tileX = viewX + (colNum - rowNum) * (Tile.WIDTH / 2);
+			tileY = viewY + (colNum + rowNum) * (Tile.HEIGHT / 2);
 
 			tileMap.getLevel(0).setTile(i, new GrassTile(tileX, tileY, 0, i));
 
