@@ -372,10 +372,6 @@ public class Game extends Application
 			{
 				tileMap.getLevel(1).setTile(i, new TreeTile(tileX, tileY, 1, i));
 			}
-			else if (r.nextInt() % 12 == 0)
-			{
-				tileMap.getLevel(1).setTile(i, new GrassTile(tileX, tileY, 1, i));
-			}
 			else if (r.nextInt() % 16 == 0)
 			{
 				tileMap.getLevel(1).setTile(i, new RockTile(tileX, tileY, 1, i));
