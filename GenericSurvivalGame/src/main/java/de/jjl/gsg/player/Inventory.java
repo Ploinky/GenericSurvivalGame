@@ -89,4 +89,9 @@ public class Inventory
 			activeStack = 8;
 		}
 	}
+
+	public void removeActiveItem()
+	{
+		items[activeStack].removeItem();
+	}
 }

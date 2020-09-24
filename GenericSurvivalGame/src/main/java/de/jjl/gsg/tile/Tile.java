@@ -1,7 +1,7 @@
 package de.jjl.gsg.tile;
 
+import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.shape.Polygon;
 
 public abstract class Tile
 {
@@ -11,7 +11,7 @@ public abstract class Tile
 
 	public static final int HEIGHT = 50;
 
-	public static final int ZHEIGHT = HEIGHT / 2;
+	public static final int ZHEIGHT = WIDTH / 2;
 
 	public static final int COLUMNS = 10;
 	public static final int ROWS = 10;
@@ -92,5 +92,5 @@ public abstract class Tile
 		hover = false;
 	}
 
-	public abstract Polygon getBounds();
+	public abstract boolean contains(Point2D p);
 }

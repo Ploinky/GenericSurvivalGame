@@ -22,6 +22,7 @@ import javafx.scene.SceneAntialiasing;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
@@ -135,7 +136,7 @@ public class Game extends Application
 						continue;
 					}
 
-					if (t.getBounds().contains(new Point2D(e.getSceneX(), e.getSceneY())))
+					if (t.contains(new Point2D(e.getSceneX(), e.getSceneY())))
 					{
 						if (hover != null && t != hover)
 						{
@@ -162,20 +163,39 @@ public class Game extends Application
 
 		primaryStage.addEventFilter(MouseEvent.MOUSE_PRESSED, e ->
 		{
-			if (hover == null)
+			if (e.getButton() == MouseButton.PRIMARY)
 			{
-				return;
-			}
+				if (hover == null)
+				{
+					return;
+				}
 
-			if (hover instanceof TreeTile || hover instanceof WoodTile)
-			{
-				inventory.addItem(new WoodItem());
-				tileMap.getLevel(hover.getZ()).setTile(hover.getIndex(), null);
+				if (hover instanceof TreeTile || hover instanceof WoodTile)
+				{
+					inventory.addItem(new WoodItem());
+					tileMap.getLevel(hover.getZ()).setTile(hover.getIndex(), null);
+				}
+				else if (hover instanceof RockTile)
+				{
+					inventory.addItem(new RockItem());
+					tileMap.getLevel(hover.getZ()).setTile(hover.getIndex(), null);
+				}
 			}
-			else if (hover instanceof RockTile)
+			else if (e.getButton() == MouseButton.SECONDARY)
 			{
-				inventory.addItem(new RockItem());
-				tileMap.getLevel(hover.getZ()).setTile(hover.getIndex(), null);
+				if (inventory.getActiveItem() != null && inventory.getActiveItem().isPlaceable() && hover != null)
+				{
+					if (tileMap.getLevel(hover.getZ() + 1) != null)
+					{
+						if (tileMap.getLevel(hover.getZ() + 1).getTile(hover.getIndex()) == null)
+						{
+							tileMap.getLevel(hover.getZ() + 1).setTile(hover.getIndex(), inventory.getActiveItem()
+									.getTile(hover.getX(), hover.getY(), hover.getZ() + 1, hover.getIndex()));
+
+							inventory.removeActiveItem();
+						}
+					}
+				}
 			}
 		});
 
@@ -235,7 +255,7 @@ public class Game extends Application
 
 			if (inventory.getItemStacks()[i].getItem() != null)
 			{
-				graphics.drawImage(inventory.getItemStacks()[i].getItem().getInventoryIcon(), x, y, 100, 100);
+				graphics.drawImage(inventory.getItemStacks()[i].getItem().getInventoryIcon(), x + 5, y + 5, 90, 90);
 
 				graphics.setFill(Color.BLACK);
 				graphics.setFont(Font.font("Sans-Serif", FontWeight.BOLD, 18));
@@ -250,6 +270,7 @@ public class Game extends Application
 		GraphicsContext graphics = canvas.getGraphicsContext2D();
 
 		Tile playerTile = getCurrentPlayerTile();
+		int playerLevel = getCurrentPlayerTile().getZ();
 
 		for (int i = 0; i < tileMap.tileLevels().length; i++)
 		{
@@ -259,19 +280,24 @@ public class Game extends Application
 			{
 				if (t != null)
 				{
-					t.paintOn(graphics);
-
-					if (t == playerTile)
+					if (t.getZ() > playerTile.getZ() && t.contains(new Point2D(playerX + 700, playerY + 100)))
 					{
-						graphics.setFill(Color.DARKRED);
-
-						graphics.fillPolygon(
-								new double[] { playerX + 700, playerX + 700 + 10, playerX + 700, playerX + 700 - 10 },
-								new double[] { playerY + 100 - playerOffsetY - 5, playerY + 100 - playerOffsetY,
-										playerY + 100 - playerOffsetY + 5, playerY + 100 - playerOffsetY },
-								4);
+						graphics.setGlobalAlpha(0.3);
 					}
+					t.paintOn(graphics);
+					graphics.setGlobalAlpha(1);
 				}
+			}
+
+			if (i == playerLevel)
+			{
+				graphics.setFill(Color.DARKRED);
+
+				graphics.fillPolygon(
+						new double[] { playerX + 700, playerX + 700 + 10, playerX + 700, playerX + 700 - 10 },
+						new double[] { playerY + 100 - playerOffsetY - 5, playerY + 100 - playerOffsetY,
+								playerY + 100 - playerOffsetY + 5, playerY + 100 - playerOffsetY },
+						4);
 			}
 		}
 
@@ -279,6 +305,9 @@ public class Game extends Application
 
 	protected void handlePlayerInput()
 	{
+		int oldX = playerX;
+		int oldY = playerY;
+
 		if (move[0])
 		{
 			playerY -= 1;
@@ -304,8 +333,14 @@ public class Game extends Application
 			return;
 		}
 
-		playerOffsetY = t.getZ() * Tile.ZHEIGHT;
+		if (!t.canWalkOn())
+		{
+			playerX = oldX;
+			playerY = oldY;
+			t = getCurrentPlayerTile();
+		}
 
+		playerOffsetY = t.getZ() * Tile.ZHEIGHT;
 	}
 
 	private Tile getCurrentPlayerTile()
@@ -332,24 +367,21 @@ public class Game extends Application
 			tileY = 100 + (colNum + rowNum) * (Tile.HEIGHT / 2);
 
 			tileMap.getLevel(0).setTile(i, new GrassTile(tileX, tileY, 0, i));
-		}
-
-		for (int i = 0; i < tileMap.getLevel(1).getSize(); i++)
-		{
-			int rowNum = i / Tile.COLUMNS;
-			int colNum = i % Tile.COLUMNS;
-			tileX = 700 + (colNum - rowNum) * (Tile.WIDTH / 2);
-			tileY = 100 + (colNum + rowNum) * (Tile.HEIGHT / 2);
 
 			if (r.nextInt() % 10 == 0)
 			{
 				tileMap.getLevel(1).setTile(i, new TreeTile(tileX, tileY, 1, i));
 			}
-			if (r.nextInt() % 16 == 0)
+			else if (r.nextInt() % 12 == 0)
+			{
+				tileMap.getLevel(1).setTile(i, new GrassTile(tileX, tileY, 1, i));
+			}
+			else if (r.nextInt() % 16 == 0)
 			{
 				tileMap.getLevel(1).setTile(i, new RockTile(tileX, tileY, 1, i));
 			}
 		}
+
 	}
 
 	private Point2D sceneToIso(Point2D screen)

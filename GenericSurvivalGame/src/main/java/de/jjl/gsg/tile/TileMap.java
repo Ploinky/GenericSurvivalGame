@@ -2,7 +2,7 @@ package de.jjl.gsg.tile;
 
 public class TileMap
 {
-	private TileLevel[] tileLevels = new TileLevel[2];
+	private TileLevel[] tileLevels = new TileLevel[3];
 
 	public TileMap()
 	{
@@ -14,6 +14,11 @@ public class TileMap
 
 	public TileLevel getLevel(int level)
 	{
+		if (level > tileLevels.length - 1)
+		{
+			return null;
+		}
+
 		return tileLevels[level];
 	}
 
@@ -26,7 +31,7 @@ public class TileMap
 	{
 		for (int i = tileLevels.length - 1; i > -1; i--)
 		{
-			if (tileLevels[i].getTile(index) != null)
+			if (tileLevels[i].tiles().length > index && tileLevels[i].getTile(index) != null)
 			{
 				return tileLevels[i].getTile(index);
 			}

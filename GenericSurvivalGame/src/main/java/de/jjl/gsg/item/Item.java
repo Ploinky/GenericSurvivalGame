@@ -31,7 +31,7 @@ public abstract class Item
 		return image;
 	}
 
-	public abstract Tile getTile();
+	public abstract Tile getTile(int x, int y, int z, int index);
 
 	public abstract boolean isPlaceable();
 }
