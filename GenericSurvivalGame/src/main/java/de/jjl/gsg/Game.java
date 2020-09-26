@@ -2,6 +2,7 @@ package de.jjl.gsg;
 
 import java.util.Random;
 
+import de.jjl.gsg.building.CraftingTable;
 import de.jjl.gsg.cursor.Cursors;
 import de.jjl.gsg.item.RockItem;
 import de.jjl.gsg.item.WoodItem;
@@ -61,7 +62,7 @@ public class Game extends Application
 		BorderPane root = new BorderPane();
 
 		root.setCenter(canvas);
-		Scene scene = new Scene(root, 1200, viewX, true, SceneAntialiasing.BALANCED);
+		Scene scene = new Scene(root, 1200, 600, true, SceneAntialiasing.BALANCED);
 
 		primaryStage.setScene(scene);
 
@@ -119,6 +120,8 @@ public class Game extends Application
 			case D:
 				move[3] = true;
 				break;
+			case B:
+				buildCraftingTable();
 			default:
 				break;
 			}
@@ -213,6 +216,31 @@ public class Game extends Application
 				inventory.decActiveStack();
 			}
 		});
+	}
+
+	private void buildCraftingTable()
+	{
+		if (hover == null)
+		{
+			return;
+		}
+
+		if (tileMap.getLevel(hover.getZ() + 1).getTile(hover.getIndex()) != null)
+		{
+			return;
+		}
+
+		CraftingTable table = new CraftingTable(hover.getX(), hover.getY(), hover.getZ() + 1, hover.getIndex());
+
+		if (!inventory.hasItems(table.getCost()))
+		{
+			return;
+		}
+
+		inventory.useItems(table.getCost());
+
+		tileMap.getLevel(hover.getZ() + 1).setTile(hover.getIndex(),
+				new CraftingTable(hover.getX(), hover.getY(), hover.getZ() + 1, hover.getIndex()));
 	}
 
 	protected void handleCursor()

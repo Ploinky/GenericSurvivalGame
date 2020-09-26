@@ -30,4 +30,10 @@ public class WoodItem extends Item
 	{
 		return image;
 	}
+
+	@Override
+	public ItemType getType()
+	{
+		return ItemType.WOOD;
+	}
 }

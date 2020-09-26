@@ -1,7 +1,11 @@
 package de.jjl.gsg.player;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
 import de.jjl.gsg.item.Item;
 import de.jjl.gsg.item.ItemStack;
+import de.jjl.gsg.item.ItemType;
 
 public class Inventory
 {
@@ -93,5 +97,47 @@ public class Inventory
 	public void removeActiveItem()
 	{
 		items[activeStack].removeItem();
+	}
+
+	public boolean hasItems(Map<ItemType, Integer> cost)
+	{
+		boolean hasItem = true;
+
+		for (Entry<ItemType, Integer> entry : cost.entrySet())
+		{
+			boolean hasType = false;
+
+			for (ItemStack stack : items)
+			{
+				if (stack.getItem() != null && stack.getItem().getType() == entry.getKey()
+						&& stack.getSize() >= entry.getValue())
+				{
+					hasType = true;
+					break;
+				}
+			}
+
+			if (!hasType)
+			{
+				hasItem = false;
+				break;
+			}
+		}
+		return hasItem;
+	}
+
+	public void useItems(Map<ItemType, Integer> cost)
+	{
+		for (Entry<ItemType, Integer> entry : cost.entrySet())
+		{
+			for (ItemStack stack : items)
+			{
+				if (stack.getItem().getType() == entry.getKey() && stack.getSize() >= entry.getValue())
+				{
+					stack.removeItems(entry.getValue());
+					break;
+				}
+			}
+		}
 	}
 }

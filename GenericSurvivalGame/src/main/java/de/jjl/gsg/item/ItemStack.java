@@ -39,4 +39,12 @@ public class ItemStack
 	{
 		items.remove(0);
 	}
+
+	public void removeItems(Integer value)
+	{
+		for (int i = 0; i < value; i++)
+		{
+			items.remove(0);
+		}
+	}
 }

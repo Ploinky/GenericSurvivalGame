@@ -1,9 +1,10 @@
 package de.jjl.gsg.tile;
 
+import de.jjl.gsg.base.Drawable;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 
-public abstract class Tile
+public abstract class Tile implements Drawable
 {
 	protected boolean hover = false;
 
@@ -80,6 +81,7 @@ public abstract class Tile
 		return 200;
 	}
 
+	@Override
 	public abstract void paintOn(GraphicsContext graphics);
 
 	public void hover()

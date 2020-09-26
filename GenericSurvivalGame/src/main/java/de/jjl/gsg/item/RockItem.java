@@ -30,4 +30,10 @@ public class RockItem extends Item
 	{
 		return image;
 	}
+
+	@Override
+	public ItemType getType()
+	{
+		return ItemType.ROCK;
+	}
 }

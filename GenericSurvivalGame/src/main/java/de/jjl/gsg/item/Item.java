@@ -34,4 +34,6 @@ public abstract class Item
 	public abstract Tile getTile(int x, int y, int z, int index);
 
 	public abstract boolean isPlaceable();
+
+	public abstract ItemType getType();
 }
