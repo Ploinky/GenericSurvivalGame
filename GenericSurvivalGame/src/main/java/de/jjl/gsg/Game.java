@@ -250,11 +250,11 @@ public class Game extends Application
 			graphics.setFill(inventory.getActiveStackIndex() == i ? Color.LIGHTGRAY : Color.GRAY);
 			graphics.setStroke(Color.BLACK);
 
-			int x = (int) (canvas.getWidth() / 2 - 50 - viewY * (4 - i));
-			int y = (int) (canvas.getHeight() - viewY);
+			int x = (int) (canvas.getWidth() / 2 - 50 - 100 * (4 - i));
+			int y = (int) (canvas.getHeight() - 100);
 
-			graphics.fillRect(x, y, viewY, viewY);
-			graphics.strokeRect(x, y, viewY, viewY);
+			graphics.fillRect(x, y, 100, 100);
+			graphics.strokeRect(x, y, 100, 100);
 
 			if (inventory.getItemStacks()[i].getItem() != null)
 			{
