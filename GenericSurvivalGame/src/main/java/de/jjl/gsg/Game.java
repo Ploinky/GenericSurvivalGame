@@ -22,6 +22,7 @@ import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -51,6 +52,8 @@ public class Game extends Application
 
 	private int viewX = 600;
 	private int viewY = 50;
+
+	private Image playerImg = new Image(Game.class.getResourceAsStream("/img/character/player.png"));
 
 	@Override
 	public void start(Stage primaryStage) throws Exception
@@ -263,7 +266,7 @@ public class Game extends Application
 	{
 		GraphicsContext graphics = canvas.getGraphicsContext2D();
 
-		graphics.clearRect(0, 0, 1200, viewX);
+		graphics.clearRect(0, 0, 1200, 600);
 
 		paintTiles();
 		paintGui();
@@ -301,16 +304,58 @@ public class Game extends Application
 		GraphicsContext graphics = canvas.getGraphicsContext2D();
 
 		Tile playerTile = getCurrentPlayerTile();
-		int playerLevel = getCurrentPlayerTile().getZ();
+		int playerLevel = getCurrentPlayerTile().getZ() + 1;
 
-		for (int i = 0; i < tileMap.tileLevels().length; i++)
+		for (int lvl = 0; lvl < tileMap.tileLevels().length; lvl++)
 		{
-			TileLevel lvl = tileMap.getLevel(i);
-
-			for (Tile t : lvl.tiles())
+			for (int i = 0; i < Tile.COLUMNS; i++)
 			{
-				if (t != null)
+				for (int row = 0; row < i + 1; row++)
 				{
+					int index = row * Tile.COLUMNS + i;
+
+					if (index == playerTile.getIndex() && lvl == playerLevel)
+					{
+						graphics.drawImage(playerImg, playerX + viewX - playerImg.getWidth() / 4,
+								playerY + viewY - playerImg.getHeight() / 2, playerImg.getWidth() / 2,
+								playerImg.getHeight() / 2);
+						continue;
+					}
+
+					Tile t = tileMap.getLevel(lvl).getTile(index);
+
+					if (t == null)
+					{
+						continue;
+					}
+
+					if (t.getZ() > playerTile.getZ() && t.contains(new Point2D(playerX + viewX, playerY + viewY)))
+					{
+						graphics.setGlobalAlpha(0.3);
+					}
+					t.paintOn(graphics);
+					graphics.setGlobalAlpha(1);
+				}
+
+				for (int col = 0; col < i + 1; col++)
+				{
+					int index = i * Tile.COLUMNS + col;
+
+					if (index == playerTile.getIndex() && lvl == playerLevel)
+					{
+						graphics.drawImage(playerImg, playerX + viewX - playerImg.getWidth() / 4,
+								playerY + viewY - playerImg.getHeight() / 2, playerImg.getWidth() / 2,
+								playerImg.getHeight() / 2);
+						continue;
+					}
+
+					Tile t = tileMap.getLevel(lvl).getTile(index);
+
+					if (t == null)
+					{
+						continue;
+					}
+
 					if (t.getZ() > playerTile.getZ() && t.contains(new Point2D(playerX + viewX, playerY + viewY)))
 					{
 						graphics.setGlobalAlpha(0.3);
@@ -319,19 +364,39 @@ public class Game extends Application
 					graphics.setGlobalAlpha(1);
 				}
 			}
-
-			if (i == playerLevel)
-			{
-				graphics.setFill(Color.DARKRED);
-
-				graphics.fillPolygon(
-						new double[] { playerX + viewX, playerX + viewX + 10, playerX + viewX, playerX + viewX - 10 },
-						new double[] { playerY + viewY - playerOffsetY - 5, playerY + viewY - playerOffsetY,
-								playerY + viewY - playerOffsetY + 5, playerY + viewY - playerOffsetY },
-						4);
-			}
 		}
 
+//		for (int i = 0; i < tileMap.tileLevels().length; i++)
+//		{
+//			TileLevel lvl = tileMap.getLevel(i);
+//
+//			for (Tile t : lvl.tiles())
+//			{
+//				if (t != null)
+//				{
+//					if (t.getZ() > playerTile.getZ() && t.contains(new Point2D(playerX + viewX, playerY + viewY)))
+//					{
+//						graphics.setGlobalAlpha(0.3);
+//					}
+//					t.paintOn(graphics);
+//					graphics.setGlobalAlpha(1);
+//				}
+//			}
+//
+//			if (i == playerLevel)
+//			{
+//				graphics.setFill(Color.DARKRED);
+//
+//				graphics.drawImage(playerImg, playerX + viewX - playerImg.getWidth() / 4,
+//						playerY + viewY - playerImg.getHeight() / 2, playerImg.getWidth() / 2,
+//						playerImg.getHeight() / 2);
+////				graphics.fillPolygon(
+////						new double[] { playerX + viewX, playerX + viewX + 10, playerX + viewX, playerX + viewX - 10 },
+////						new double[] { playerY + viewY - playerOffsetY - 5, playerY + viewY - playerOffsetY,
+////								playerY + viewY - playerOffsetY + 5, playerY + viewY - playerOffsetY },
+////						4);
+//			}
+//		}
 	}
 
 	protected void handlePlayerInput()
