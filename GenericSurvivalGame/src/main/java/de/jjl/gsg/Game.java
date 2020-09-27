@@ -310,7 +310,7 @@ public class Game extends Application
 		{
 			for (int i = 0; i < Tile.COLUMNS; i++)
 			{
-				for (int row = 0; row < i + 1; row++)
+				for (int row = 0; row < i; row++)
 				{
 					int index = row * Tile.COLUMNS + i;
 
@@ -329,7 +329,9 @@ public class Game extends Application
 						continue;
 					}
 
-					if (t.getZ() > playerTile.getZ() && t.contains(new Point2D(playerX + viewX, playerY + viewY)))
+					if (t.getZ() >= playerLevel && (t.getIndex() == playerTile.getIndex() + Tile.COLUMNS
+							|| t.getIndex() == playerTile.getIndex() + Tile.COLUMNS + 1
+							|| t.getIndex() == playerTile.getIndex() + 1))
 					{
 						graphics.setGlobalAlpha(0.3);
 					}
@@ -356,7 +358,9 @@ public class Game extends Application
 						continue;
 					}
 
-					if (t.getZ() > playerTile.getZ() && t.contains(new Point2D(playerX + viewX, playerY + viewY)))
+					if (t.getZ() >= playerLevel && (t.getIndex() == playerTile.getIndex() + Tile.COLUMNS
+							|| t.getIndex() == playerTile.getIndex() + Tile.COLUMNS + 1
+							|| t.getIndex() == playerTile.getIndex() + 1))
 					{
 						graphics.setGlobalAlpha(0.3);
 					}
